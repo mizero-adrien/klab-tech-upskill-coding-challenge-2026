@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #1b2430;
+  --ink-soft: #57626f;
+  --line: #d7dce2;
+
+  --indigo: #2e3a8f;
+  --indigo-strong: #232d70;
+  --moss: #3f6b4f;
+  --moss-soft: #e4ede6;
+  --amber: #c98a2c;
+  --amber-soft: #f5ead4;
+  --clay: #b4472c;
+  --clay-soft: #f6e2dc;
+  --slate: #6b7684;
+  --slate-soft: #e6e9ed;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+
+  --color-indigo: var(--indigo);
+  --color-indigo-strong: var(--indigo-strong);
+  --color-moss: var(--moss);
+  --color-moss-soft: var(--moss-soft);
+  --color-amber: var(--amber);
+  --color-amber-soft: var(--amber-soft);
+  --color-clay: var(--clay);
+  --color-clay-soft: var(--clay-soft);
+  --color-slate: var(--slate);
+  --color-slate-soft: var(--slate-soft);
+
+  --font-sans: var(--font-plex-sans);
+  --font-serif: var(--font-plex-serif);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--line);
+}
+
+:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
