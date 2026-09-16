@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions, viewsets
 
 from .filters import TaskFilter
@@ -7,10 +8,13 @@ from .serializers import TaskSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
+    filter_backends = [DjangoFilterBackend]
     filterset_class = TaskFilter
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Task.objects.none()
         return Task.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):

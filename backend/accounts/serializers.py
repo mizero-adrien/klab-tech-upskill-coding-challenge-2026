@@ -12,6 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(help_text='The refresh token to blacklist.')
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)

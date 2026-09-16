@@ -1,10 +1,11 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import LogoutSerializer, RegisterSerializer, UserSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -37,7 +38,9 @@ class MeView(generics.RetrieveAPIView):
 
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LogoutSerializer
 
+    @extend_schema(request=LogoutSerializer, responses={205: None, 400: None})
     def post(self, request):
         refresh_token = request.data.get('refresh')
         if not refresh_token:
