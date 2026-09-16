@@ -15,10 +15,17 @@ frontend/.next/
 frontend/out/
 frontend/build/
 frontend/.turbo/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+frontend/.vercel
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# --- AI agent tooling files (auto-generated/regenerated, not project docs) ---
+AGENTS.md
+CLAUDE.md
 
 # --- Environment files (never commit secrets) ---
 .env
