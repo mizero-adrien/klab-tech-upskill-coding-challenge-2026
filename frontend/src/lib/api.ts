@@ -38,6 +38,8 @@ export interface TaskInput {
 export interface TaskFilters {
   status?: TaskStatus;
   priority?: TaskPriority;
+  search?: string;
+  page?: number;
 }
 
 export interface RegisterInput {
@@ -191,6 +193,8 @@ export function listTasks(filters: TaskFilters = {}) {
   const params = new URLSearchParams();
   if (filters.status) params.set("status", filters.status);
   if (filters.priority) params.set("priority", filters.priority);
+  if (filters.search) params.set("search", filters.search);
+  if (filters.page) params.set("page", String(filters.page));
   const qs = params.toString();
   return request<Paginated<Task>>(`/tasks/${qs ? `?${qs}` : ""}`);
 }

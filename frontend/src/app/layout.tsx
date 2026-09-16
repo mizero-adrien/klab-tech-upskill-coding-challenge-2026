@@ -16,8 +16,8 @@ const plexSerif = IBM_Plex_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Task Manager — kLab Upskill Challenge",
-  description: "A task management system built for the kLab Tech Upskill Program challenge.",
+  title: "Task Manager",
+  description: "A simple, fast way to create, organize, and track your tasks.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
