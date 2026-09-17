@@ -14,9 +14,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN adduser --disabled-password --no-create-home --gecos "" appuser
+RUN adduser --disabled-password --home /app --gecos "" appuser \
+    && chown -R appuser:appuser /app
+ENV HOME=/app
 USER appuser
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+# $PORT is injected by hosts like Render; defaults to 8000 for local `docker run`.
+# Runs collectstatic + migrate on every boot so a fresh deploy is always in sync.
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
