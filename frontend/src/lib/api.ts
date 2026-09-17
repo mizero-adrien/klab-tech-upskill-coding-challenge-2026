@@ -1,6 +1,11 @@
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
+if (typeof window !== "undefined") {
+  // TEMPORARY debug line - remove once the deployment env var issue is confirmed fixed.
+  console.log("[DEBUG] API_URL resolved to:", API_URL);
+}
+
 export type TaskStatus = "pending" | "completed";
 export type TaskPriority = "low" | "medium" | "high";
 
