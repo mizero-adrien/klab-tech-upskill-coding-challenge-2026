@@ -106,7 +106,7 @@ export function LandingPage() {
               <path d="M3 8.5L6 11.5L13 4.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <span className="truncate font-serif text-base font-semibold text-ink sm:text-lg">
+          <span className="hidden font-serif text-lg font-semibold text-ink sm:inline">
             Task Manager
           </span>
         </span>
