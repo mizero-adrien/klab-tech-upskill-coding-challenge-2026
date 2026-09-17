@@ -10,6 +10,7 @@ export interface Task {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  due_date: string | null;
   owner: string;
   created_at: string;
   updated_at: string;
@@ -33,13 +34,17 @@ export interface TaskInput {
   description?: string;
   priority?: TaskPriority;
   status?: TaskStatus;
+  due_date?: string | null;
 }
+
+export type TaskOrdering = "-created_at" | "due_date_sort" | "priority_rank";
 
 export interface TaskFilters {
   status?: TaskStatus;
   priority?: TaskPriority;
   search?: string;
   page?: number;
+  ordering?: TaskOrdering;
 }
 
 export interface RegisterInput {
@@ -47,6 +52,12 @@ export interface RegisterInput {
   email: string;
   password: string;
   password2: string;
+}
+
+export interface ChangePasswordInput {
+  old_password: string;
+  new_password: string;
+  new_password2: string;
 }
 
 export class ApiError extends Error {
@@ -176,6 +187,13 @@ export function getMe() {
   return request<User>("/auth/me/");
 }
 
+export function changePassword(payload: ChangePasswordInput) {
+  return request<{ detail: string }>("/auth/change-password/", {
+    method: "POST",
+    body: payload,
+  });
+}
+
 export async function logoutUser(): Promise<void> {
   const refresh = getRefreshToken();
   try {
@@ -195,6 +213,7 @@ export function listTasks(filters: TaskFilters = {}) {
   if (filters.priority) params.set("priority", filters.priority);
   if (filters.search) params.set("search", filters.search);
   if (filters.page) params.set("page", String(filters.page));
+  if (filters.ordering) params.set("ordering", filters.ordering);
   const qs = params.toString();
   return request<Paginated<Task>>(`/tasks/${qs ? `?${qs}` : ""}`);
 }

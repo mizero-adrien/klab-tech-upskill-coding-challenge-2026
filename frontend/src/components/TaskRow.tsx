@@ -6,6 +6,23 @@ const PRIORITY_STYLES: Record<Task["priority"], { dot: string; label: string }> 
   low: { dot: "bg-slate", label: "Low" },
 };
 
+function formatDueDate(dueDate: string): string {
+  const [year, month, day] = dueDate.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function isOverdue(task: Task): boolean {
+  if (!task.due_date || task.status === "completed") return false;
+  const [year, month, day] = task.due_date.split("-").map(Number);
+  const due = new Date(year, month - 1, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return due < today;
+}
+
 export function TaskRow({
   task,
   onToggleStatus,
@@ -21,6 +38,7 @@ export function TaskRow({
 }) {
   const completed = task.status === "completed";
   const priority = PRIORITY_STYLES[task.priority];
+  const overdue = isOverdue(task);
 
   return (
     <li
@@ -64,9 +82,22 @@ export function TaskRow({
             {task.description}
           </p>
         )}
-        <div className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-soft">
-          <span className={`h-1.5 w-1.5 rounded-full ${priority.dot}`} aria-hidden />
-          {priority.label} priority
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-soft">
+          <span className="flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${priority.dot}`} aria-hidden />
+            {priority.label} priority
+          </span>
+          {task.due_date && (
+            <span
+              className={`flex items-center gap-1 ${overdue ? "font-medium text-clay" : ""}`}
+            >
+              <svg viewBox="0 0 14 14" className="h-3 w-3" fill="none" aria-hidden>
+                <rect x="1.5" y="2.5" width="11" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M1.5 5.5h11M4 1.5v2M10 1.5v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+              {overdue ? "Overdue" : "Due"} {formatDueDate(task.due_date)}
+            </span>
+          )}
         </div>
       </div>
 

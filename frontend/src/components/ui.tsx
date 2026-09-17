@@ -1,4 +1,6 @@
+import Link from "next/link";
 import {
+  AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   SelectHTMLAttributes,
@@ -16,6 +18,9 @@ const variantClasses: Record<Variant, string> = {
   ghost: "text-ink-soft hover:text-ink disabled:opacity-50",
 };
 
+const buttonBaseClasses =
+  "inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-all duration-100 cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:active:scale-100";
+
 export function Button({
   variant = "primary",
   className = "",
@@ -23,7 +28,22 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-all duration-100 cursor-pointer active:scale-[0.98] disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`}
+      className={`${buttonBaseClasses} ${variantClasses[variant]} ${className}`}
+      {...props}
+    />
+  );
+}
+
+export function LinkButton({
+  variant = "primary",
+  className = "",
+  href,
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement> & { variant?: Variant; href: string }) {
+  return (
+    <Link
+      href={href}
+      className={`${buttonBaseClasses} ${variantClasses[variant]} ${className}`}
       {...props}
     />
   );

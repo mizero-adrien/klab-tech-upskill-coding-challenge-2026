@@ -18,6 +18,7 @@ export function TaskFormPanel({
   const [title, setTitle] = useState(task?.title ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
   const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? "medium");
+  const [dueDate, setDueDate] = useState(task?.due_date ?? "");
   const [status, setStatus] = useState<Task["status"]>(task?.status ?? "pending");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +54,13 @@ export function TaskFormPanel({
 
     setSubmitting(true);
     try {
-      await onSubmit({ title: title.trim(), description, priority, status });
+      await onSubmit({
+        title: title.trim(),
+        description,
+        priority,
+        status,
+        due_date: dueDate || null,
+      });
     } catch (err) {
       if (err instanceof ApiError && err.data && typeof err.data === "object") {
         const data = err.data as Record<string, string[]>;
@@ -142,6 +149,15 @@ export function TaskFormPanel({
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </Select>
+          </Field>
+
+          <Field label="Due date" htmlFor="due_date">
+            <TextInput
+              id="due_date"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </Field>
 
           <Field label="Status" htmlFor="status">

@@ -22,7 +22,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       await login(username, password);
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof ApiError) {
         setError("Username or password is incorrect.");

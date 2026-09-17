@@ -34,7 +34,7 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       await register(form);
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof ApiError && err.data && typeof err.data === "object") {
         const data = err.data as Record<string, string[]>;

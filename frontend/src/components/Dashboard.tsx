@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
+import { AccountMenu } from "@/components/AccountMenu";
 import { FilterTabs, StatusFilter } from "@/components/FilterTabs";
 import { TaskRow } from "@/components/TaskRow";
 import { TaskFormPanel } from "@/components/TaskFormPanel";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { useToast } from "@/components/ToastProvider";
 import {
-  Avatar,
   Button,
   ErrorBanner,
+  Select,
   Spinner,
   TaskRowSkeleton,
   TextInput,
 } from "@/components/ui";
 import * as api from "@/lib/api";
-import { Task, TaskInput } from "@/lib/api";
+import { Task, TaskInput, TaskOrdering } from "@/lib/api";
 
 type Counts = Record<StatusFilter, number>;
 
@@ -25,12 +26,18 @@ interface PageInfo {
   hasPrevious: boolean;
 }
 
+const SORT_OPTIONS: { value: TaskOrdering; label: string }[] = [
+  { value: "-created_at", label: "Newest" },
+  { value: "due_date_sort", label: "Due date" },
+  { value: "priority_rank", label: "Priority" },
+];
+
 function otherBucket(status: Task["status"]): StatusFilter {
   return status === "completed" ? "completed" : "pending";
 }
 
 export function Dashboard() {
-  const { user, logout } = useAuth();
+  const { notify } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [counts, setCounts] = useState<Counts>({ all: 0, pending: 0, completed: 0 });
   const [pageInfo, setPageInfo] = useState<PageInfo>({
@@ -39,6 +46,7 @@ export function Dashboard() {
     hasPrevious: false,
   });
   const [filter, setFilter] = useState<StatusFilter>("all");
+  const [ordering, setOrdering] = useState<TaskOrdering>("-created_at");
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -65,7 +73,7 @@ export function Dashboard() {
       setRefreshing(true);
       setError(null);
       try {
-        const base = { search: search || undefined, page };
+        const base = { search: search || undefined, page, ordering };
         const [all, pending, completed] = await Promise.all([
           api.listTasks(base),
           api.listTasks({ ...base, status: "pending" }),
@@ -95,10 +103,15 @@ export function Dashboard() {
     return () => {
       ignore = true;
     };
-  }, [filter, search, page, reloadKey]);
+  }, [filter, search, page, ordering, reloadKey]);
 
   function handleFilterChange(next: StatusFilter) {
     setFilter(next);
+    setPage(1);
+  }
+
+  function handleOrderingChange(next: TaskOrdering) {
+    setOrdering(next);
     setPage(1);
   }
 
@@ -107,6 +120,7 @@ export function Dashboard() {
       await api.createTask(input);
       setPage(1);
       setReloadKey((k) => k + 1);
+      notify("Task created.");
     } else if (panelTask) {
       const previousBucket = otherBucket(panelTask.status);
       const updated = await api.updateTask(panelTask.id, input);
@@ -125,6 +139,7 @@ export function Dashboard() {
           [newBucket]: c[newBucket] + 1,
         }));
       }
+      notify("Task updated.");
     }
     setPanelTask(null);
   }
@@ -146,6 +161,7 @@ export function Dashboard() {
         [otherBucket(nextStatus)]: c[otherBucket(nextStatus)] + 1,
       }));
       if (nextTasks.length === 0 && page > 1) setPage((p) => p - 1);
+      notify(nextStatus === "completed" ? "Marked as completed." : "Marked as pending.");
     } catch {
       setError("Couldn't update that task. Please try again.");
     } finally {
@@ -166,6 +182,7 @@ export function Dashboard() {
         [otherBucket(task.status)]: c[otherBucket(task.status)] - 1,
       }));
       if (remaining.length === 0 && page > 1) setPage((p) => p - 1);
+      notify("Task deleted.");
     } catch {
       setError("Couldn't delete that task. Please try again.");
     } finally {
@@ -193,17 +210,7 @@ export function Dashboard() {
             Task Manager
           </h1>
         </div>
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Avatar name={user?.username ?? "?"} />
-          <div className="hidden md:block">
-            <p className="max-w-[10rem] truncate text-sm font-medium text-ink">
-              {user?.username}
-            </p>
-          </div>
-          <Button variant="ghost" onClick={logout} className="px-2 sm:px-3.5">
-            Sign out
-          </Button>
-        </div>
+        <AccountMenu />
       </header>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -230,8 +237,27 @@ export function Dashboard() {
         </Button>
       </div>
 
-      <div className="mt-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
-        <FilterTabs value={filter} onChange={handleFilterChange} counts={counts} />
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
+          <FilterTabs value={filter} onChange={handleFilterChange} counts={counts} />
+        </div>
+        <div className="flex items-center gap-2 sm:shrink-0">
+          <label htmlFor="sort" className="text-sm text-ink-soft">
+            Sort
+          </label>
+          <Select
+            id="sort"
+            value={ordering}
+            onChange={(e) => handleOrderingChange(e.target.value as TaskOrdering)}
+            className="w-auto"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-4">
